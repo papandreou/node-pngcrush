@@ -50,4 +50,18 @@ describe('PngCrush', function () {
             pngCrush.resume();
         }, 1000);
     });
+
+    it('should emit an error if an invalid image is processed', function (done) {
+        var pngCrush = new PngCrush();
+
+        pngCrush.on('error', function (err) {
+            done();
+        }).on('data', function (chunk) {
+            done(new Error('PngCrush emitted data when an error was expected'));
+        }).on('end', function (chunk) {
+            done(new Error('PngCrush emitted end when an error was expected'));
+        });
+
+        pngCrush.end(new Buffer('qwvopeqwovkqvwiejvq', 'utf-8'));
+    });
 });
