@@ -1,36 +1,36 @@
 {
-    "name": "pngcrush",
-    "version": "0.0.3",
-    "description": "The pngcrush utility as a readable/writable stream",
-    "main": "lib/PngCrush.js",
-    "directories": {
-        "test": "test"
-    },
-    "dependencies": {
-        "gettemporaryfilepath": "=0.0.1"
-    },
-    "devDependencies": {
-        "mocha": "=1.7.3",
-        "unexpected": "=1.0.11"
-    },
-    "scripts": {
-        "prepublish": "mocha",
-        "test": "mocha"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git://github.com/papandreou/node-pngcrush.git"
-    },
-    "keywords": [
-        "pngcrush",
-        "png",
-        "image",
-        "optimization",
-        "stream",
-        "filter",
-        "read/write",
-        "duplex"
-    ],
-    "author": "Andreas Lind Petersen <andreas@one.com>",
-    "license": "BSD"
+  "name": "pngcrush",
+  "version": "0.0.3",
+  "description": "The pngcrush utility as a readable/writable stream",
+  "main": "lib/PngCrush.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "gettemporaryfilepath": "=0.0.1"
+  },
+  "devDependencies": {
+    "mocha": "=1.7.3",
+    "unexpected": "=1.0.11"
+  },
+  "scripts": {
+    "prepublish": "mocha",
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/papandreou/node-pngcrush.git"
+  },
+  "keywords": [
+    "pngcrush",
+    "png",
+    "image",
+    "optimization",
+    "stream",
+    "filter",
+    "read/write",
+    "duplex"
+  ],
+  "author": "Andreas Lind Petersen <andreas@one.com>",
+  "license": "BSD"
 }
