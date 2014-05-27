@@ -70,6 +70,7 @@ describe('PngCrush', function () {
             seenError = false;
 
         pngCrush.on('error', function (err) {
+            expect(pngCrush.commandLine, 'to match', /^pngcrush -reduce vqweqwvveqw .*?\.png .*?\.png$/);
             if (seenError) {
                 done(new Error('More than one error event was emitted'));
             } else {
