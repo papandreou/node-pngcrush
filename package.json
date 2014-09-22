@@ -1,6 +1,6 @@
 {
   "name": "pngcrush",
-  "version": "0.0.5",
+  "version": "0.1.0",
   "description": "The pngcrush utility as a readable/writable stream",
   "main": "lib/PngCrush.js",
   "directories": {
