@@ -15,7 +15,7 @@ describe('PngCrush', function () {
             .on('end', function () {
                 var resultPngBuffer = Buffer.concat(chunks);
                 expect(resultPngBuffer.length, 'to be greater than', 0);
-                expect(resultPngBuffer.length, 'to be less than', 152);
+                expect(resultPngBuffer.length, 'to be less than', 3711);
                 done();
             })
             .on('error', done);
@@ -43,7 +43,7 @@ describe('PngCrush', function () {
                 .on('end', function () {
                     var resultPngBuffer = Buffer.concat(chunks);
                     expect(resultPngBuffer.length, 'to be greater than', 0);
-                    expect(resultPngBuffer.length, 'to be less than', 152);
+                    expect(resultPngBuffer.length, 'to be less than', 3711);
                     done();
                 });
 
