@@ -1,3 +1,4 @@
+/*global describe, it, setTimeout, __dirname*/
 var expect = require('unexpected'),
     PngCrush = require('../lib/PngCrush'),
     Path = require('path'),
