@@ -2,9 +2,9 @@ node-pngcrush
 =============
 
 [![NPM version](https://badge.fury.io/js/pngcrush.svg)](http://badge.fury.io/js/pngcrush)
-[![Build Status](https://travis-ci.org/papandreou/pngcrush.svg?branch=master)](https://travis-ci.org/papandreou/pngcrush)
-[![Coverage Status](https://coveralls.io/repos/papandreou/pngcrush/badge.svg)](https://coveralls.io/r/papandreou/pngcrush)
-[![Dependency Status](https://david-dm.org/papandreou/pngcrush.svg)](https://david-dm.org/papandreou/pngcrush)
+[![Build Status](https://travis-ci.org/papandreou/node-pngcrush.svg?branch=master)](https://travis-ci.org/papandreou/node-pngcrush)
+[![Coverage Status](https://coveralls.io/repos/papandreou/node-pngcrush/badge.svg)](https://coveralls.io/r/papandreou/node-pngcrush)
+[![Dependency Status](https://david-dm.org/papandreou/node-pngcrush.svg)](https://david-dm.org/papandreou/node-pngcrush)
 
 The pngcrush command line utility as a readable/writable stream. This
 is handy for situations where you don't want to worry about writing
