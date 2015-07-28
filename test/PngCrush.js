@@ -1,25 +1,20 @@
 /*global describe, it, setTimeout, __dirname*/
-var expect = require('unexpected'),
+var expect = require('unexpected').clone().use(require('unexpected-stream')),
     PngCrush = require('../lib/PngCrush'),
     Path = require('path'),
     fs = require('fs');
 
 describe('PngCrush', function () {
-    it('should produce a smaller file when run with -rem alla on a PNG with ancillary chunks', function (done) {
-        var pngCrush = new PngCrush(['-rem', 'alla']),
-            chunks = [];
-        fs.createReadStream(Path.resolve(__dirname, 'ancillaryChunks.png'))
-            .pipe(pngCrush)
-            .on('data', function (chunk) {
-                chunks.push(chunk);
-            })
-            .on('end', function () {
-                var resultPngBuffer = Buffer.concat(chunks);
-                expect(resultPngBuffer.length, 'to be greater than', 0);
-                expect(resultPngBuffer.length, 'to be less than', 3711);
-                done();
-            })
-            .on('error', done);
+    it('should produce a smaller file when run with -rem alla on a PNG with ancillary chunks', function () {
+        return expect(
+            fs.createReadStream(Path.resolve(__dirname, 'ancillaryChunks.png')),
+            'when piped through',
+            new PngCrush(['-rem', 'alla']),
+            'to yield output satisfying',
+            function (resultPngBuffer) {
+                expect(resultPngBuffer.length, 'to be within', 0, 3711);
+            }
+        );
     });
 
     it('should not emit data events while paused', function (done) {
@@ -43,8 +38,7 @@ describe('PngCrush', function () {
                 })
                 .on('end', function () {
                     var resultPngBuffer = Buffer.concat(chunks);
-                    expect(resultPngBuffer.length, 'to be greater than', 0);
-                    expect(resultPngBuffer.length, 'to be less than', 3711);
+                    expect(resultPngBuffer.length, 'to be within', 0, 3711);
                     done();
                 });
 
