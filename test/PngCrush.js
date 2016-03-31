@@ -1,13 +1,16 @@
 /*global describe, it, setTimeout, __dirname*/
-var expect = require('unexpected').clone().use(require('unexpected-stream')),
-    PngCrush = require('../lib/PngCrush'),
-    Path = require('path'),
-    fs = require('fs');
+var expect = require('unexpected').clone()
+    .use(require('unexpected-stream'))
+    .use(require('unexpected-sinon'));
+var PngCrush = require('../lib/PngCrush');
+var sinon = require('sinon');
+var pathModule = require('path');
+var fs = require('fs');
 
 describe('PngCrush', function () {
     it('should produce a smaller file when run with -rem alla on a PNG with ancillary chunks', function () {
         return expect(
-            fs.createReadStream(Path.resolve(__dirname, 'ancillaryChunks.png')),
+            fs.createReadStream(pathModule.resolve(__dirname, 'ancillaryChunks.png')),
             'when piped through',
             new PngCrush(['-rem', 'alla']),
             'to yield output satisfying',
@@ -26,7 +29,7 @@ describe('PngCrush', function () {
         pngCrush.pause();
         pngCrush.on('data', fail).on('error', done);
 
-        fs.createReadStream(Path.resolve(__dirname, 'ancillaryChunks.png')).pipe(pngCrush);
+        fs.createReadStream(pathModule.resolve(__dirname, 'ancillaryChunks.png')).pipe(pngCrush);
 
         setTimeout(function () {
             pngCrush.removeListener('data', fail);
@@ -79,5 +82,110 @@ describe('PngCrush', function () {
         });
 
         pngCrush.end(new Buffer('qwvopeqwovkqvwiejvq', 'utf-8'));
+    });
+
+    describe('#destroy', function () {
+        describe('when called before the fs.WriteStream is created', function () {
+            it('should not create the fs.WriteStream or launch the pngcrush process', function () {
+                var pngcrush = new PngCrush();
+                fs.createReadStream(pathModule.resolve(__dirname, 'ancillaryChunks.png')).pipe(pngcrush);
+                pngcrush.destroy();
+                return expect.promise(function (run) {
+                    setTimeout(run(function () {
+                        expect(pngcrush, 'to satisfy', {
+                            writeStream: expect.it('to be falsy'),
+                            pngcrushProcess: expect.it('to be falsy')
+                        });
+                    }), 10);
+                });
+            });
+        });
+
+        describe('when called while the fs.WriteStream is active', function () {
+            it('should abort the fs.WriteStream and remove the temporary file', function () {
+                var pngcrush = new PngCrush();
+                fs.createReadStream(pathModule.resolve(__dirname, 'ancillaryChunks.png')).pipe(pngcrush);
+
+                return expect.promise(function (run) {
+                    setTimeout(run(function waitForWriteStream() {
+                        var writeStream = pngcrush.writeStream;
+                        if (pngcrush.writeStream) {
+                            pngcrush.destroy();
+                            expect(pngcrush.writeStream, 'to be falsy');
+                            sinon.spy(writeStream, 'end');
+                            sinon.spy(writeStream, 'write');
+                            setTimeout(run(function () {
+                                expect([writeStream.end, writeStream.write], 'to have calls satisfying', []);
+                            }), 10);
+                        } else {
+                            setTimeout(run(waitForWriteStream), 0);
+                        }
+                    }), 0);
+                });
+            });
+        });
+
+        describe('when called while the pngcrush process is running', function () {
+            it('should kill the pngcrush process and remove the temporary file', function () {
+                var pngCrush = new PngCrush();
+                fs.createReadStream(pathModule.resolve(__dirname, 'ancillaryChunks.png')).pipe(pngCrush);
+
+                sinon.spy(fs, 'unlink');
+                return expect.promise(function (run) {
+                    setTimeout(run(function waitForPngCrushProcess() {
+                        var pngCrushProcess = pngCrush.pngCrushProcess;
+                        if (pngCrush.pngCrushProcess) {
+                            sinon.spy(pngCrushProcess, 'kill');
+                            var pngCrushInputFilePath = pngCrush.pngCrushInputFilePath;
+                            var pngCrushOutputFilePath = pngCrush.pngCrushOutputFilePath;
+                            expect(pngCrushInputFilePath, 'to be a string');
+                            expect(pngCrushOutputFilePath, 'to be a string');
+                            pngCrush.destroy();
+                            expect([pngCrushProcess.kill, fs.unlink], 'to have calls satisfying', function () {
+                                pngCrushProcess.kill();
+                                fs.unlink(pngCrushOutputFilePath, expect.it('to be a function'));
+                                fs.unlink(pngCrushInputFilePath, expect.it('to be a function'));
+                            });
+                            expect(pngCrush.pngCrushProcess, 'to be falsy');
+                        } else {
+                            setTimeout(run(waitForPngCrushProcess), 0);
+                        }
+                    }), 0);
+                }).finally(function () {
+                    fs.unlink.restore();
+                });
+            });
+        });
+
+        describe('when called while streaming from the temporary output file', function () {
+            it('should kill the pngcrush process and remove the temporary output file', function () {
+                var pngCrush = new PngCrush();
+                fs.createReadStream(pathModule.resolve(__dirname, 'ancillaryChunks.png')).pipe(pngCrush);
+                pngCrush.pause();
+                sinon.spy(fs, 'unlink');
+                return expect.promise(function (run) {
+                    setTimeout(run(function waitForReadStream() {
+                        var readStream = pngCrush.readStream;
+                        if (readStream) {
+                            sinon.spy(readStream, 'destroy');
+                            expect(pngCrush.pngCrushProcess, 'to be falsy');
+                            expect(pngCrush.pngCrushInputFilePath, 'to be falsy');
+                            var pngCrushOutputFilePath = pngCrush.pngCrushOutputFilePath;
+                            expect(pngCrushOutputFilePath, 'to be a string');
+                            pngCrush.destroy();
+                            expect([fs.unlink, readStream.destroy], 'to have calls satisfying', function () {
+                                fs.unlink(expect.it('to be a string'), expect.it('to be a function'));
+                                readStream.destroy();
+                                fs.unlink(pngCrushOutputFilePath, expect.it('to be a function'));
+                            });
+                        } else {
+                            setTimeout(run(waitForReadStream), 0);
+                        }
+                    }), 0);
+                }).finally(function () {
+                    fs.unlink.restore();
+                });
+            });
+        });
     });
 });
