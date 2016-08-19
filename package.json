@@ -9,21 +9,19 @@
   "dependencies": {
     "gettemporaryfilepath": "=0.0.1",
     "memoizeasync": "=0.8.0",
-    "mocha": "2.4.5",
     "pngcrush-bin": "^3.0.0",
-    "sinon": "1.17.3",
-    "unexpected": "10.11.1",
-    "unexpected-sinon": "10.2.0",
-    "unexpected-stream": "2.0.3",
     "which": "=1.1.2"
   },
   "devDependencies": {
     "coveralls": "2.11.2",
     "istanbul": "0.3.15",
     "jshint": "2.8.0",
-    "mocha": "2.2.5",
-    "unexpected": "9.4.0",
-    "unexpected-stream": "1.2.0"
+    "unexpected-stream": "1.2.0",
+    "sinon": "1.17.3",
+    "unexpected": "10.11.1",
+    "unexpected-sinon": "10.2.0",
+    "unexpected-stream": "2.0.3",
+    "mocha": "2.4.5",
   },
   "scripts": {
     "lint": "jshint .",
