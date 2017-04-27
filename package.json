@@ -7,10 +7,10 @@
     "test": "test"
   },
   "dependencies": {
-    "gettemporaryfilepath": "^0.0.1",
-    "memoizeasync": "^0.9.0",
-    "pngcrush-bin": "3.0.0",
-    "which": "^1.2.10"
+    "gettemporaryfilepath": "^1.0.0",
+    "memoizeasync": "^1.0.0",
+    "pngcrush-bin": "^3.0.0",
+    "which": "^1.2.14"
   },
   "devDependencies": {
     "coveralls": "^2.13.1",
