@@ -1,28 +1,26 @@
 /*global describe, it, setTimeout, __dirname*/
-var expect = require('unexpected')
+const expect = require('unexpected')
   .clone()
   .use(require('unexpected-stream'))
   .use(require('unexpected-sinon'));
-var PngCrush = require('../lib/PngCrush');
-var sinon = require('sinon');
-var pathModule = require('path');
-var fs = require('fs');
+const PngCrush = require('../lib/PngCrush');
+const sinon = require('sinon');
+const pathModule = require('path');
+const fs = require('fs');
 
-describe('PngCrush', function() {
-  it('should produce a smaller file when run with -rem alla on a PNG with ancillary chunks', function() {
-    return expect(
-      fs.createReadStream(pathModule.resolve(__dirname, 'ancillaryChunks.png')),
-      'when piped through',
-      new PngCrush(['-rem', 'alla']),
-      'to yield output satisfying',
-      function(resultPngBuffer) {
-        expect(resultPngBuffer.length, 'to be within', 0, 3711);
-      }
-    );
-  });
+describe('PngCrush', () => {
+  it('should produce a smaller file when run with -rem alla on a PNG with ancillary chunks', () => expect(
+    fs.createReadStream(pathModule.resolve(__dirname, 'ancillaryChunks.png')),
+    'when piped through',
+    new PngCrush(['-rem', 'alla']),
+    'to yield output satisfying',
+    resultPngBuffer => {
+      expect(resultPngBuffer.length, 'to be within', 0, 3711);
+    }
+  ));
 
-  it('should not emit data events while paused', function(done) {
-    var pngCrush = new PngCrush(['-rem', 'alla']);
+  it('should not emit data events while paused', done => {
+    const pngCrush = new PngCrush(['-rem', 'alla']);
 
     function fail() {
       done(new Error('PngCrush emitted data while it was paused!'));
@@ -34,16 +32,16 @@ describe('PngCrush', function() {
       pathModule.resolve(__dirname, 'ancillaryChunks.png')
     ).pipe(pngCrush);
 
-    setTimeout(function() {
+    setTimeout(() => {
       pngCrush.removeListener('data', fail);
-      var chunks = [];
+      const chunks = [];
 
       pngCrush
-        .on('data', function(chunk) {
+        .on('data', chunk => {
           chunks.push(chunk);
         })
-        .on('end', function() {
-          var resultPngBuffer = Buffer.concat(chunks);
+        .on('end', () => {
+          const resultPngBuffer = Buffer.concat(chunks);
           expect(resultPngBuffer.length, 'to be within', 0, 3711);
           done();
         });
@@ -52,30 +50,30 @@ describe('PngCrush', function() {
     }, 1000);
   });
 
-  it('should emit an error if an invalid image is processed', function(done) {
-    var pngCrush = new PngCrush();
+  it('should emit an error if an invalid image is processed', done => {
+    const pngCrush = new PngCrush();
 
     pngCrush
-      .on('error', function(err) {
+      .on('error', err => {
         done();
       })
-      .on('data', function(chunk) {
+      .on('data', chunk => {
         done(new Error('PngCrush emitted data when an error was expected'));
       })
-      .on('end', function(chunk) {
+      .on('end', chunk => {
         done(new Error('PngCrush emitted end when an error was expected'));
       });
 
     pngCrush.end(new Buffer('qwvopeqwovkqvwiejvq', 'utf-8'));
   });
 
-  it('should emit a single error if an invalid command line is specified', function(done) {
-    var pngCrush = new PngCrush(['-reduce', 'vqweqwvveqw']);
+  it('should emit a single error if an invalid command line is specified', done => {
+    const pngCrush = new PngCrush(['-reduce', 'vqweqwvveqw']);
 
-    var seenError = false;
+    let seenError = false;
 
     pngCrush
-      .on('error', function(err) {
+      .on('error', err => {
         expect(
           pngCrush.commandLine,
           'to match',
@@ -88,27 +86,27 @@ describe('PngCrush', function() {
           setTimeout(done, 100);
         }
       })
-      .on('data', function(chunk) {
+      .on('data', chunk => {
         done(new Error('PngCrush emitted data when an error was expected'));
       })
-      .on('end', function(chunk) {
+      .on('end', chunk => {
         done(new Error('PngCrush emitted end when an error was expected'));
       });
 
     pngCrush.end(new Buffer('qwvopeqwovkqvwiejvq', 'utf-8'));
   });
 
-  describe('#destroy', function() {
-    describe('when called before the fs.WriteStream is created', function() {
-      it('should not create the fs.WriteStream or launch the pngcrush process', function() {
-        var pngcrush = new PngCrush();
+  describe('#destroy', () => {
+    describe('when called before the fs.WriteStream is created', () => {
+      it('should not create the fs.WriteStream or launch the pngcrush process', () => {
+        const pngcrush = new PngCrush();
         fs.createReadStream(
           pathModule.resolve(__dirname, 'ancillaryChunks.png')
         ).pipe(pngcrush);
         pngcrush.destroy();
-        return expect.promise(function(run) {
+        return expect.promise(run => {
           setTimeout(
-            run(function() {
+            run(() => {
               expect(pngcrush, 'to satisfy', {
                 writeStream: expect.it('to be falsy'),
                 pngcrushProcess: expect.it('to be falsy')
@@ -120,24 +118,24 @@ describe('PngCrush', function() {
       });
     });
 
-    describe('when called while the fs.WriteStream is active', function() {
-      it('should abort the fs.WriteStream and remove the temporary file', function() {
-        var pngcrush = new PngCrush();
+    describe('when called while the fs.WriteStream is active', () => {
+      it('should abort the fs.WriteStream and remove the temporary file', () => {
+        const pngcrush = new PngCrush();
         fs.createReadStream(
           pathModule.resolve(__dirname, 'ancillaryChunks.png')
         ).pipe(pngcrush);
 
-        return expect.promise(function(run) {
+        return expect.promise(run => {
           setTimeout(
             run(function waitForWriteStream() {
-              var writeStream = pngcrush.writeStream;
+              const writeStream = pngcrush.writeStream;
               if (pngcrush.writeStream) {
                 pngcrush.destroy();
                 expect(pngcrush.writeStream, 'to be falsy');
                 sinon.spy(writeStream, 'end');
                 sinon.spy(writeStream, 'write');
                 setTimeout(
-                  run(function() {
+                  run(() => {
                     expect(
                       [writeStream.end, writeStream.write],
                       'to have calls satisfying',
@@ -156,30 +154,30 @@ describe('PngCrush', function() {
       });
     });
 
-    describe('when called while the pngcrush process is running', function() {
-      it('should kill the pngcrush process and remove the temporary file', function() {
-        var pngCrush = new PngCrush();
+    describe('when called while the pngcrush process is running', () => {
+      it('should kill the pngcrush process and remove the temporary file', () => {
+        const pngCrush = new PngCrush();
         fs.createReadStream(
           pathModule.resolve(__dirname, 'ancillaryChunks.png')
         ).pipe(pngCrush);
 
         sinon.spy(fs, 'unlink');
         return expect
-          .promise(function(run) {
+          .promise(run => {
             setTimeout(
               run(function waitForPngCrushProcess() {
-                var pngCrushProcess = pngCrush.pngCrushProcess;
+                const pngCrushProcess = pngCrush.pngCrushProcess;
                 if (pngCrush.pngCrushProcess) {
                   sinon.spy(pngCrushProcess, 'kill');
-                  var pngCrushInputFilePath = pngCrush.pngCrushInputFilePath;
-                  var pngCrushOutputFilePath = pngCrush.pngCrushOutputFilePath;
+                  const pngCrushInputFilePath = pngCrush.pngCrushInputFilePath;
+                  const pngCrushOutputFilePath = pngCrush.pngCrushOutputFilePath;
                   expect(pngCrushInputFilePath, 'to be a string');
                   expect(pngCrushOutputFilePath, 'to be a string');
                   pngCrush.destroy();
                   expect(
                     [pngCrushProcess.kill, fs.unlink],
                     'to have calls satisfying',
-                    function() {
+                    () => {
                       pngCrushProcess.kill();
                       fs.unlink(
                         pngCrushOutputFilePath,
@@ -199,36 +197,36 @@ describe('PngCrush', function() {
               0
             );
           })
-          .finally(function() {
+          .finally(() => {
             fs.unlink.restore();
           });
       });
     });
 
-    describe('when called while streaming from the temporary output file', function() {
-      it('should kill the pngcrush process and remove the temporary output file', function() {
-        var pngCrush = new PngCrush();
+    describe('when called while streaming from the temporary output file', () => {
+      it('should kill the pngcrush process and remove the temporary output file', () => {
+        const pngCrush = new PngCrush();
         fs.createReadStream(
           pathModule.resolve(__dirname, 'ancillaryChunks.png')
         ).pipe(pngCrush);
         pngCrush.pause();
         sinon.spy(fs, 'unlink');
         return expect
-          .promise(function(run) {
+          .promise(run => {
             setTimeout(
               run(function waitForReadStream() {
-                var readStream = pngCrush.readStream;
+                const readStream = pngCrush.readStream;
                 if (readStream) {
                   sinon.spy(readStream, 'destroy');
                   expect(pngCrush.pngCrushProcess, 'to be falsy');
                   expect(pngCrush.pngCrushInputFilePath, 'to be falsy');
-                  var pngCrushOutputFilePath = pngCrush.pngCrushOutputFilePath;
+                  const pngCrushOutputFilePath = pngCrush.pngCrushOutputFilePath;
                   expect(pngCrushOutputFilePath, 'to be a string');
                   pngCrush.destroy();
                   expect(
                     [fs.unlink, readStream.destroy],
                     'to have calls satisfying',
-                    function() {
+                    () => {
                       fs.unlink(
                         expect.it('to be a string'),
                         expect.it('to be a function')
@@ -247,7 +245,7 @@ describe('PngCrush', function() {
               0
             );
           })
-          .finally(function() {
+          .finally(() => {
             fs.unlink.restore();
           });
       });
