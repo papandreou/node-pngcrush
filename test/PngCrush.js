@@ -9,15 +9,16 @@ const pathModule = require('path');
 const fs = require('fs');
 
 describe('PngCrush', () => {
-  it('should produce a smaller file when run with -rem alla on a PNG with ancillary chunks', () => expect(
-    fs.createReadStream(pathModule.resolve(__dirname, 'ancillaryChunks.png')),
-    'when piped through',
-    new PngCrush(['-rem', 'alla']),
-    'to yield output satisfying',
-    resultPngBuffer => {
-      expect(resultPngBuffer.length, 'to be within', 0, 3711);
-    }
-  ));
+  it('should produce a smaller file when run with -rem alla on a PNG with ancillary chunks', () =>
+    expect(
+      fs.createReadStream(pathModule.resolve(__dirname, 'ancillaryChunks.png')),
+      'when piped through',
+      new PngCrush(['-rem', 'alla']),
+      'to yield output satisfying',
+      resultPngBuffer => {
+        expect(resultPngBuffer.length, 'to be within', 0, 3711);
+      }
+    ));
 
   it('should not emit data events while paused', done => {
     const pngCrush = new PngCrush(['-rem', 'alla']);
@@ -170,7 +171,8 @@ describe('PngCrush', () => {
                 if (pngCrush.pngCrushProcess) {
                   sinon.spy(pngCrushProcess, 'kill');
                   const pngCrushInputFilePath = pngCrush.pngCrushInputFilePath;
-                  const pngCrushOutputFilePath = pngCrush.pngCrushOutputFilePath;
+                  const pngCrushOutputFilePath =
+                    pngCrush.pngCrushOutputFilePath;
                   expect(pngCrushInputFilePath, 'to be a string');
                   expect(pngCrushOutputFilePath, 'to be a string');
                   pngCrush.destroy();
@@ -220,7 +222,8 @@ describe('PngCrush', () => {
                   sinon.spy(readStream, 'destroy');
                   expect(pngCrush.pngCrushProcess, 'to be falsy');
                   expect(pngCrush.pngCrushInputFilePath, 'to be falsy');
-                  const pngCrushOutputFilePath = pngCrush.pngCrushOutputFilePath;
+                  const pngCrushOutputFilePath =
+                    pngCrush.pngCrushOutputFilePath;
                   expect(pngCrushOutputFilePath, 'to be a string');
                   pngCrush.destroy();
                   expect(
