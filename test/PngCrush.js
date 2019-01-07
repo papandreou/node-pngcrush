@@ -15,9 +15,9 @@ describe('PngCrush', () => {
       'when piped through',
       new PngCrush(['-rem', 'alla']),
       'to yield output satisfying',
-      resultPngBuffer => {
+      expect.it(resultPngBuffer => {
         expect(resultPngBuffer.length, 'to be within', 0, 3711);
-      }
+      })
     ));
 
   it('should not emit data events while paused', done => {
