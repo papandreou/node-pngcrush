@@ -55,7 +55,7 @@ describe('PngCrush', () => {
     const pngCrush = new PngCrush();
 
     pngCrush
-      .on('error', err => {
+      .on('error', () => {
         done();
       })
       .on('data', chunk => {
@@ -74,7 +74,7 @@ describe('PngCrush', () => {
     let seenError = false;
 
     pngCrush
-      .on('error', err => {
+      .on('error', () => {
         expect(
           pngCrush.commandLine,
           'to match',
