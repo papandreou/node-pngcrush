@@ -1,4 +1,4 @@
-/*global describe, it, setTimeout, __dirname*/
+/* global describe, it, setTimeout, __dirname */
 const expect = require('unexpected')
   .clone()
   .use(require('unexpected-stream'))
