@@ -14,12 +14,12 @@ describe('PngCrush', () => {
       'when piped through',
       new PngCrush(['-rem', 'alla']),
       'to yield output satisfying',
-      expect.it(resultPngBuffer => {
+      expect.it((resultPngBuffer) => {
         expect(resultPngBuffer.length, 'to be within', 0, 3711);
       })
     ));
 
-  it('should not emit data events while paused', done => {
+  it('should not emit data events while paused', (done) => {
     const pngCrush = new PngCrush(['-rem', 'alla']);
 
     function fail() {
@@ -37,7 +37,7 @@ describe('PngCrush', () => {
       const chunks = [];
 
       pngCrush
-        .on('data', chunk => {
+        .on('data', (chunk) => {
           chunks.push(chunk);
         })
         .on('end', () => {
@@ -50,24 +50,24 @@ describe('PngCrush', () => {
     }, 1000);
   });
 
-  it('should emit an error if an invalid image is processed', done => {
+  it('should emit an error if an invalid image is processed', (done) => {
     const pngCrush = new PngCrush();
 
     pngCrush
       .on('error', () => {
         done();
       })
-      .on('data', chunk => {
+      .on('data', (chunk) => {
         done(new Error('PngCrush emitted data when an error was expected'));
       })
-      .on('end', chunk => {
+      .on('end', (chunk) => {
         done(new Error('PngCrush emitted end when an error was expected'));
       });
 
     pngCrush.end(Buffer.from('qwvopeqwovkqvwiejvq', 'utf-8'));
   });
 
-  it('should emit a single error if an invalid command line is specified', done => {
+  it('should emit a single error if an invalid command line is specified', (done) => {
     const pngCrush = new PngCrush(['-reduce', 'vqweqwvveqw']);
 
     let seenError = false;
@@ -86,10 +86,10 @@ describe('PngCrush', () => {
           setTimeout(done, 100);
         }
       })
-      .on('data', chunk => {
+      .on('data', (chunk) => {
         done(new Error('PngCrush emitted data when an error was expected'));
       })
-      .on('end', chunk => {
+      .on('end', (chunk) => {
         done(new Error('PngCrush emitted end when an error was expected'));
       });
 
@@ -104,12 +104,12 @@ describe('PngCrush', () => {
           pathModule.resolve(__dirname, 'ancillaryChunks.png')
         ).pipe(pngcrush);
         pngcrush.destroy();
-        return expect.promise(run => {
+        return expect.promise((run) => {
           setTimeout(
             run(() => {
               expect(pngcrush, 'to satisfy', {
                 writeStream: expect.it('to be falsy'),
-                pngcrushProcess: expect.it('to be falsy')
+                pngcrushProcess: expect.it('to be falsy'),
               });
             }),
             10
@@ -125,7 +125,7 @@ describe('PngCrush', () => {
           pathModule.resolve(__dirname, 'ancillaryChunks.png')
         ).pipe(pngcrush);
 
-        return expect.promise(run => {
+        return expect.promise((run) => {
           setTimeout(
             run(function waitForWriteStream() {
               const writeStream = pngcrush.writeStream;
@@ -163,7 +163,7 @@ describe('PngCrush', () => {
 
         sinon.spy(fs, 'unlink');
         return expect
-          .promise(run => {
+          .promise((run) => {
             setTimeout(
               run(function waitForPngCrushProcess() {
                 const pngCrushProcess = pngCrush.pngCrushProcess;
@@ -213,7 +213,7 @@ describe('PngCrush', () => {
         pngCrush.pause();
         sinon.spy(fs, 'unlink');
         return expect
-          .promise(run => {
+          .promise((run) => {
             setTimeout(
               run(function waitForReadStream() {
                 const readStream = pngCrush.readStream;
