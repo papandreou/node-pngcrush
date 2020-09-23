@@ -96,6 +96,20 @@ describe('PngCrush', () => {
     pngCrush.end(Buffer.from('qwvopeqwovkqvwiejvq', 'utf-8'));
   });
 
+  it("should not mangle the caller's object", () => {
+    const pngCrushArgs = ['-reduce', 'vqweqwvveqw'];
+
+    return expect(
+      fs.createReadStream(pathModule.resolve(__dirname, 'ancillaryChunks.png')),
+      'when piped through',
+      new PngCrush(pngCrushArgs),
+      'to error with',
+      new Error('The pngcrush process exited with a non-zero exit code: 1')
+    ).then(() => {
+      return expect(pngCrushArgs, 'to equal', ['-reduce', 'vqweqwvveqw']);
+    });
+  });
+
   describe('#destroy', () => {
     describe('when called before the fs.WriteStream is created', () => {
       it('should not create the fs.WriteStream or launch the pngcrush process', () => {
