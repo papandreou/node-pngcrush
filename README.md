@@ -45,6 +45,10 @@ Make sure you have node.js and npm installed, and that the `pngcrush` binary is 
 
     npm install pngcrush
 
+## Releases
+
+[Changelog](https://github.com/papandreou/node-pngcrush/blob/master/CHANGELOG.md)
+
 ## License
 
 3-clause BSD license -- see the `LICENSE` file for details.
